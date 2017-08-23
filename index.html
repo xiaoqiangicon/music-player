@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" type="text/css" href="css.css">
+	<script type="text/javascript" src="ajax.js"></script>
+	<script type="text/javascript" src="js.js"></script>
+	<script type="text/javascript">
+		(function(){
+			var pixelRatio=1/window.devicePixelRatio;
+			document.write('<meta name="viewport" content="width=device-width,initial-scale='+pixelRatio+',minimum-scale='+pixelRatio+',maximum-scale='+pixelRatio+'"/>');
+			var oHtml=document.getElementsByTagName('html')[0];
+			var pageWidth=oHtml.getBoundingClientRect().width;
+			oHtml.style.fontSize=pageWidth/32+'px';
+		})();
+
+		
+	</script>
+</head>
+<body>
+	<div id="main">
+		<div id="musicList">
+			<div id="list_title">天天动听
+				<span class="list_tip"></span>
+			</div>
+			<div id="list_content">
+				<ul class="musicContent"> 
+					
+				</ul>
+			</div>
+			<div id="list_audio">
+				<img class="list_audioImg" src="img/yixiangren.jpg" alt="" />
+				<div class="list_audioText">
+					<h3 class="title">欢迎来到天天动听</h3>
+					<p class="name">音乐播放器</p>
+				</div>
+				<div class="list_audioBtn"></div>
+			</div>
+		</div>
+		<div id="musicDetails">
+			<div class="details_title">
+				<div class="details_name">异乡人<span class="details_singer">李健</span></div>
+				<span class="details_tip"></span>
+			</div>
+			<div class="details_lyric">
+				<ul class="details_lyricUl">
+				</ul>
+			</div>
+			<div class="details_audio">
+				<div class="details_audioBox">
+					<div class="details_audioPro">
+						<div class="details_audioProUp"></div>
+						<div class="details_audioBar"></div>
+					</div>
+					<div class="details_nowTime">00:00</div>
+					<div class="details_allTime">00:00</div>
+					<div class="play"></div>
+					<div class="prev"></div>
+					<div class="next"></div>
+				</div>
+			</div>
+			<div class="details_message">
+				<textarea class="info" placeholder="文明上网，理性留言"></textarea>
+				<input type="button" value="发表" class="send" />
+				<ul class="message">
+					<li>唱得太棒了</li>
+					<li>good</li>
+					<li>还行吧，不是我喜欢的型</li>
+				</ul>
+			</div>
+			<ul class="details_btn">
+				<li class="active dot"></li>
+				<li class="dot"></li>
+			</ul>
+		</div>
+	</div>
+	<audio id="audio"></audio>
+</body>
+</html>
