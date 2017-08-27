@@ -70,6 +70,7 @@ window.onload=function(){
 						
 						if(index!=target.index){
 							musicAudio.loadMusic(id);
+							musicAudio.play();
 						}
 						index=target.index;
 					}
@@ -80,6 +81,7 @@ window.onload=function(){
 						id=target.parentNode.getAttribute('musicId');
 						if(index!=target.parentNode.index){
 							musicAudio.loadMusic(id);
+							musicAudio.play();
 						}			
 						index=target.parentNode.index;
 					}
