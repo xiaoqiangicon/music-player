@@ -19,6 +19,13 @@ window.onload=function(){
 		var onoff2=false;
 		var id=0;
 		var index=0;
+		var moveY=0;
+		var startY=0
+		var downT
+		var lastTime
+		var dis=0;
+		var oHtml=document.getElementsByTagName('html')[0];
+		var htmlHeight=oHtml.getBoundingClientRect().height;
 
 		function init(){				//初始
 			data();
@@ -26,7 +33,7 @@ window.onload=function(){
 			moveScroll();
 		}
 
-		function data(){				//数据	
+		function data(){				//获取数据	
 			ajax('./data/music.json','GET','',function(data){
 				var data=JSON.parse(data);
 				for(key in data){
@@ -39,7 +46,7 @@ window.onload=function(){
 			})
 		};
 
-		function bind(){
+		function bind(){				//绑定事件
 			var listTip=getByClass(oListContent,'list_tip')[0];
 			listTip.addEventListener('touchstart',function(){
 				alert(1);
@@ -61,11 +68,9 @@ window.onload=function(){
 						target.className=oldClass+' active';
 						id=target.getAttribute('musicId');
 						
-						if(index==target.index){
-
-						}
-						else
+						if(index!=target.index){
 							musicAudio.loadMusic(id);
+						}
 						index=target.index;
 					}
 					else if(target.parentNode.nodeName.toLowerCase()=='li')
@@ -73,11 +78,9 @@ window.onload=function(){
 						oldClass=target.parentNode.className;
 						target.parentNode.className=oldClass+' active';
 						id=target.parentNode.getAttribute('musicId');
-						if(index==target.parentNode.index){
-
-						}
-						else
+						if(index!=target.parentNode.index){
 							musicAudio.loadMusic(id);
+						}			
 						index=target.parentNode.index;
 					}
 				}
@@ -102,7 +105,8 @@ window.onload=function(){
 				ev.stopPropagation();
 			}
 		}
-		function next(){
+
+		function next(){				//下一曲
 			id++;
 			if(id>12){
 				id=1;
@@ -110,7 +114,8 @@ window.onload=function(){
 			musicAudio.loadMusic(id);
 			addBorder();
 		}
-		function prev(){
+
+		function prev(){				//上一曲
 			id--;
 			if(id<1){
 				id=12;
@@ -118,7 +123,8 @@ window.onload=function(){
 			musicAudio.loadMusic(id);
 			addBorder();
 		}
-		function addBorder(){
+
+		function addBorder(){			//当前播放歌曲加样式
 			var aLiList=oMusicContent.getElementsByTagName('li');
 			for(var i=0;i<aLiList.length;i++){
 				aLiList[i].className='musicSingle';
@@ -128,53 +134,73 @@ window.onload=function(){
 			}
 		}
 
+		function scrollStart(ev){
+			var touch = ev.changedTouches[0];
+			startY=touch.pageY;
+			downT=cssTransform(this,'translateY');	//上一次滑动的y坐标
+			lastTime=new Date().getTime();
+			onoff=true;
+
+			document.addEventListener('touchmove',scrollMove);
+			document.addEventListener('touchend',scrollEnd,false);
+			return false;
+		}
+
+		function scrollMove(ev){
+			onoff=false;
+			var touch=ev.changedTouches[0];
+			moveY=touch.pageY;			//滑动后的y坐标
+			dis=moveY-startY+downT;		//滑动的距离
+			var bottomY=oMusicContent.offsetHeight-htmlHeight+oListAudio.offsetHeight+olistTitle.offsetHeight;
+			var nowTime=new Date().getTime();
+
+			if(dis>0){
+				step = 1-dis / oMusicContent.clientHeight;
+				dis=parseInt(dis*step)
+			}
+			if(dis < -bottomY) {
+				var over = -bottomY - dis; // 计算下超出值
+				step = 1-over / oMusicContent.clientWidth; //根据超出值计算系数
+				over = parseInt(over*step);
+				dis = -bottomY - over;
+			}
+			
+			timeDis=nowTime-lastTime;
+			lastTime=nowTime;
+			cssTransform(oMusicContent,'translateY',dis);
+		}
+
+		function scrollEnd(ev){
+			var touch=ev.changedTouches[0];
+			var endY=touch.pageY;
+			changeY=cssTransform(oMusicContent,'translateY');
+			var bottomY=oMusicContent.offsetHeight-htmlHeight+oListAudio.offsetHeight+olistTitle.offsetHeight;
+			var speed=Math.abs(dis/timeDis);
+			var target=changeY+speed;
+			var type = "cubic-bezier(.22,.64,0,.96)";
+			var time = Math.abs(speed*.9);
+			time = time<300?300:time;
+
+			if(target>=0){
+				target=0;
+			}else if(target<=-bottomY){
+				target=-bottomY;
+			}
+
+			oMusicContent.style.transition = time+"ms " + type;
+			cssTransform(oMusicContent,"translateY",target);
+			document.removeEventListener('touchend',scrollEnd,false);
+			document.removeEventListener('touchmove',scrollMove,false);
+		}
+
 		function moveScroll(){			//滑屏操作
 			document.addEventListener('touchmove',function(ev){
 				ev.preventDefault();
 			});
-			oMusicContent.addEventListener('touchstart',function(ev){
-				var touch = ev.changedTouches[0];
-				var startY=touch.pageY;
-				var downT=cssTransform(this,'translateY');
-				onoff=true;
-
-				document.addEventListener('touchmove',scrollMove);
-
-				function scrollMove(ev){
-					onoff=false;
-					var touch=ev.changedTouches[0];
-					moveY=touch.pageY;
-					dis=moveY-startY+downT;
-					
-					cssTransform(oMusicContent,'translateY',dis);
-				}
-
-				function scroll(ev){
-					var touch=ev.changedTouches[0];
-					var endY=touch.pageY;
-					changeY=cssTransform(oMusicContent,'translateY');
-					var oHtml=document.getElementsByTagName('html')[0];
-					var htmlHeight=oHtml.getBoundingClientRect().height;
-					bottomY=oMusicContent.offsetHeight-htmlHeight+oListAudio.offsetHeight+olistTitle.offsetHeight;
-
-					if(changeY>=0){
-						cssTransform(oMusicContent,'translateY',0);
-					}else if(changeY<=-bottomY){
-						cssTransform(oMusicContent,'translateY',-bottomY);
-					}
-					else{
-						cssTransform(oMusicContent,'translateY',dis);
-					}
-					document.removeEventListener('touchend',scroll,false);
-					document.removeEventListener('touchmove',scrollMove,false);
-				}
-
-				document.addEventListener('touchend',scroll,false);
-				return false;
-			})
+			oMusicContent.addEventListener('touchstart',scrollStart,false);
 		}
 
-		function show(sName,sMusicName,sImg){
+		function show(sName,sMusicName,sImg){	//显示数据
 			var oListAudioImg=document.querySelector('.list_audioImg');
 			var oListAudioText=document.querySelector('.list_audioText');
 			var oListAudioBtn=document.querySelector('.list_audioBtn');
@@ -186,6 +212,7 @@ window.onload=function(){
 			oName.innerHTML=sName;
 			oListAudioBtn.style.display='block';
 		}
+
 		return{
 			init:init,
 			show:show,
@@ -284,17 +311,18 @@ window.onload=function(){
 				document.addEventListener('touchend',changeMessage);
 			});
 
-			oSend.addEventListener('touchend',leaveMessage);
-
+			oSend.addEventListener('touchend',function(){
+				leaveMessage(musicList.id)
+			});
 		}
 
-		function leaveMessage(){
+		function leaveMessage(index){
 			if(oInfo.value!=''){
 				var oLi=document.createElement('li');
 				
 				oLi.innerHTML=oInfo.value;
 				oMessage.appendChild(oLi);
-				save("music-player",oInfo.value);
+				save(index,oInfo.value);
 				oInfo.value='';
 			}
 		}
@@ -336,8 +364,8 @@ window.onload=function(){
 
 		function format(num){
 			num=num.substring(1,num.length-1);
-
 			var arr=num.split(':');
+			
 			return (parseFloat(arr[0]*60)+parseFloat(arr[1])).toFixed(2);
 		}
 
