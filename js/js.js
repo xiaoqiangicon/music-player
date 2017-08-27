@@ -94,18 +94,19 @@ window.onload=function(){
 				}
 			});
 
-			oListAudioBtn.addEventListener('touchend',palyMusic);
-			oPlay.addEventListener('touchend',palyMusic);
-			function palyMusic(ev){
-				if(onoff2){
-					onoff2=false;
-					musicAudio.play();
-				}else{
-					onoff2=true;
-					musicAudio.pause();
-				}
-				ev.stopPropagation();
+			oListAudioBtn.addEventListener('touchend',playMusic);
+			oPlay.addEventListener('touchend',playMusic);
+		}
+
+		function playMusic(ev){
+			if(onoff2){
+				onoff2=false;
+				musicAudio.play();
+			}else{
+				onoff2=true;
+				musicAudio.pause();
 			}
+			ev.stopPropagation();
 		}
 
 		function next(){				//下一曲
@@ -143,8 +144,8 @@ window.onload=function(){
 			lastTime=new Date().getTime();
 			onoff=true;
 
-			document.addEventListener('touchmove',scrollMove);
-			document.addEventListener('touchend',scrollEnd,false);
+			document.addEventListener('touchmove',scrollMove,false);
+			//document.addEventListener('touchend',scrollEnd,false);
 			return false;
 		}
 
@@ -170,6 +171,7 @@ window.onload=function(){
 			timeDis=nowTime-lastTime;
 			lastTime=nowTime;
 			cssTransform(oMusicContent,'translateY',dis);
+			document.addEventListener('touchend',scrollEnd,false);
 		}
 
 		function scrollEnd(ev){
@@ -179,7 +181,7 @@ window.onload=function(){
 			var bottomY=oMusicContent.offsetHeight-htmlHeight+oListAudio.offsetHeight+olistTitle.offsetHeight;
 			var speed=Math.abs(dis/timeDis);
 			var target=changeY+speed;
-			var type = "cubic-bezier(.22,.64,0,.96)";
+			var type = "ease-in";
 			var time = Math.abs(speed*.9);
 			time = time<300?300:time;
 
