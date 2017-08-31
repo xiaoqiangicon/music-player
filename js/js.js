@@ -86,6 +86,8 @@ window.onload=function(){
 						index=target.parentNode.index;
 					}
 				}
+
+				musicDetails.fetch(id);
 			},false);
 
 			oListAudio.addEventListener('touchend',function(){
@@ -145,7 +147,6 @@ window.onload=function(){
 			onoff=true;
 
 			document.addEventListener('touchmove',scrollMove,false);
-			//document.addEventListener('touchend',scrollEnd,false);
 			return false;
 		}
 
@@ -221,7 +222,10 @@ window.onload=function(){
 			init:init,
 			show:show,
 			next:next,
-			prev:prev
+			prev:prev,
+			getIndex:function(){
+				return id;
+			}
 		};
 	})();
 
@@ -254,6 +258,7 @@ window.onload=function(){
 		var oInfo=document.querySelector('.info');
 		var oSend=document.querySelector('.send');
 		var oMessage=document.querySelector('.message');
+		var preArr=[];
 
 		function init(){
 			cssTransform(oMusicDetails,'translateY',htmlHeight);
@@ -323,21 +328,30 @@ window.onload=function(){
 		function leaveMessage(index){
 			if(oInfo.value!=''){
 				var oLi=document.createElement('li');
-				
+
 				oLi.innerHTML=oInfo.value;
 				oMessage.appendChild(oLi);
-				save(index,oInfo.value);
+				preArr.push(oInfo.value);
+				save(index,JSON.stringify(preArr));
 				oInfo.value='';
 			}
 		}
 
-		function save(key,value){
-			localStorage.setItem(key,value);
-		}
-		function fetch(key){
-			return localStorage.getItem(key) || [];
+		function save(key,valArr){
+			localStorage.setItem(musicList.getIndex(),valArr);
 		}
 
+		function fetch(key){
+			var arr=JSON.parse(localStorage[key]);
+			
+			for(var i=0,l=arr.length;i<l;i++){
+				var oLi=document.createElement('li');
+
+				oLi.innerHTML=arr[i];
+				oMessage.appendChild(oLi);
+			}
+		}
+		//fetch(4);
 		function changeMessage(ev){
 			var touch = ev.changedTouches[0];
 			var oDetailsBtn=document.querySelector('.details_btn');
@@ -395,7 +409,9 @@ window.onload=function(){
 			init:init,
 			slideUp:slideUp,
 			show:show,
-			scrollLyric:scrollLyric
+			scrollLyric:scrollLyric,
+			save:save,
+			fetch:fetch
 		}
 	})();
 

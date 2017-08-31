@@ -306,6 +306,7 @@ li {
   left: 0;
   top: 4rem;
   bottom: 5rem;
+  overflow: hidden;
   margin-left: 10%;
   margin-top: 1.5rem;
   transition: 0.3s;
@@ -334,6 +335,7 @@ li {
   font-size: 1.35rem;
 }
 #musicDetails .details_message .message {
+  position: absolute;
   width: 100%;
 }
 #musicDetails .details_message .message li {
