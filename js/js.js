@@ -1,10 +1,46 @@
 
 window.onload=function(){
 
-	function init(){					//项目初始化
+	function init(){
+		showLoading();					//项目初始化
 		musicList.init();
 		musicDetails.init();
 		musicAudio.init();
+	}
+
+	function showLoading(){
+		var oLoading=document.getElementById('loading');
+		var oSpan = oLoading.getElementsByTagName('span')[0];
+		var aDiv = oLoading.getElementsByTagName('div');
+
+		var arr = ['bg.jpg','detailsBg.jpg','details_pause.png','yixiangren.jpg'];
+		var iNow = 0;
+
+		for(var i=0,l=arr.length;i<l;i++){
+			var objImg=new Image();
+
+			objImg.src='img/'+arr[i];
+			objImg.onload=function(){
+				iNow++;
+				oSpan.style.width = iNow/arr.length*100 + '%';
+			}
+		}
+
+		oSpan.addEventListener('webkitTransitionend',spanChange,false);
+		oSpan.addEventListener('transitionend',spanChange,false);
+		aDiv[0].addEventListener('webkitTransitionend',divChange,false);
+		aDiv[0].addEventListener('transitionend',divChange,false);
+
+		function divChange(){
+			oLoading.parentNode.removeChild(oLoading);
+		}
+		function spanChange(){
+			if(oSpan.style.width == '100%'){
+				oSpan.style.display = 'none';
+				aDiv[0].style.height = 0;
+				aDiv[1].style.height = 0;
+			}
+		}
 	}
 
 	var musicList=(function(){			//音乐列表页操作
@@ -71,6 +107,7 @@ window.onload=function(){
 						if(index!=target.index){
 							musicAudio.loadMusic(id);
 							musicAudio.play();
+							musicDetails.fetch(id);
 						}
 						index=target.index;
 					}
@@ -82,12 +119,11 @@ window.onload=function(){
 						if(index!=target.parentNode.index){
 							musicAudio.loadMusic(id);
 							musicAudio.play();
+							musicDetails.fetch(id);
 						}			
 						index=target.parentNode.index;
 					}
 				}
-
-				musicDetails.fetch(id);
 			},false);
 
 			oListAudio.addEventListener('touchend',function(){
@@ -258,6 +294,7 @@ window.onload=function(){
 		var oInfo=document.querySelector('.info');
 		var oSend=document.querySelector('.send');
 		var oMessage=document.querySelector('.message');
+		var aMessageLi=oMessage.getElementsByTagName('li');
 		var preArr=[];
 
 		function init(){
@@ -330,7 +367,7 @@ window.onload=function(){
 				var oLi=document.createElement('li');
 
 				oLi.innerHTML=oInfo.value;
-				oMessage.appendChild(oLi);
+				oMessage.insertBefore(oLi,aMessageLi[0]);
 				preArr.push(oInfo.value);
 				save(index,JSON.stringify(preArr));
 				oInfo.value='';
@@ -342,8 +379,9 @@ window.onload=function(){
 		}
 
 		function fetch(key){
-			var arr=JSON.parse(localStorage[key]);
-			
+			var arrString=localStorage[key]||'[]';
+			var arr=JSON.parse(arrString);
+
 			for(var i=0,l=arr.length;i<l;i++){
 				var oLi=document.createElement('li');
 
@@ -351,8 +389,8 @@ window.onload=function(){
 				oMessage.appendChild(oLi);
 			}
 		}
-		//fetch(4);
-		function changeMessage(ev){
+
+		function changeMessage(ev){		//移动到留言页面
 			var touch = ev.changedTouches[0];
 			var oDetailsBtn=document.querySelector('.details_btn');
 			var aDetailsLi=oDetailsBtn.getElementsByTagName('li');
@@ -562,6 +600,7 @@ window.onload=function(){
 
 	init();
 }
+
 function getByClass(oParent,cclass){
 	var aEle=oParent.getElementsByTagName('*');
 	var reg=new RegExp('\\b'+cclass+'\\b',i);
@@ -573,6 +612,7 @@ function getByClass(oParent,cclass){
 	}
 	return aResult;
 }
+
 function cssTransform(obj,attr,val){
 	if(!obj.transform){
 		obj.transform={};
@@ -616,6 +656,7 @@ function cssTransform(obj,attr,val){
 		return val;		
 	}	
 }
+
 function getStyle(obj,attr){
 	if(obj.currentStyle)
 		return obj.currentStyle(attr,false);
